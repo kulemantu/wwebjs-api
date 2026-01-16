@@ -106,7 +106,8 @@ const sendMessage = async (req, res) => {
 
   try {
     const { chatId, content, contentType, options, mediaFromURLOptions = {} } = req.body
-    const sendOptions = { waitUntilMsgSent: true, ...options }
+    // sendSeen: false - workaround for whatsapp-web.js #5718 (markedUnread error)
+    const sendOptions = { waitUntilMsgSent: true, sendSeen: false, ...options }
     const client = sessions.get(req.params.sessionId)
     const chat = await client.getChatById(chatId)
     if (!chat) {

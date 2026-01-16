@@ -224,7 +224,8 @@ const forward = async (req, res) => {
     const client = sessions.get(req.params.sessionId)
     const message = await _getMessageById(client, messageId, chatId)
     if (!message) { throw new Error('Message not found') }
-    const result = await message.forward(destinationChatId)
+    // sendSeen: false - workaround for whatsapp-web.js #5718 (markedUnread error)
+    const result = await message.forward(destinationChatId, { sendSeen: false })
     res.json({ success: true, result })
   } catch (error) {
     sendErrorResponse(res, 500, error.message)
@@ -534,7 +535,9 @@ const reply = async (req, res) => {
       default:
         return sendErrorResponse(res, 400, 'contentType invalid, must be string, MessageMedia, MessageMediaFromURL, Location, Contact or Poll')
     }
-    const repliedMessage = await message.reply(contentMessage, chatId, options)
+    // sendSeen: false - workaround for whatsapp-web.js #5718 (markedUnread error)
+    const replyOptions = { sendSeen: false, ...options }
+    const repliedMessage = await message.reply(contentMessage, chatId, replyOptions)
     res.json({ success: true, repliedMessage })
   } catch (error) {
     sendErrorResponse(res, 500, error.message)
