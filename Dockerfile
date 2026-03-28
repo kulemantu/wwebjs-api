@@ -14,6 +14,8 @@ ARG USE_EDGE=false
 
 COPY package*.json ./
 
+COPY patches/ ./patches/
+
 RUN if [ "$USE_EDGE" = "true" ]; then \
       apt-get update && apt-get install -y --no-install-recommends git ca-certificates && \
       npm ci --only=production --ignore-scripts && \
@@ -22,6 +24,9 @@ RUN if [ "$USE_EDGE" = "true" ]; then \
     else \
       npm ci --only=production --ignore-scripts; \
     fi
+
+# Apply patches to whatsapp-web.js (fixes not yet in upstream releases)
+RUN bash patches/apply-patches.sh
 
 # Create the final stage
 FROM base
